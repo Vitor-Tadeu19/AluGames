@@ -11,7 +11,7 @@ import java.util.Scanner
 
 fun main() {
     val leitura = Scanner(System.`in`)
-    println("Digite  um código de jogo para buscar: ")
+    println("Digite um código de jogo para buscar: ")
     val busca = leitura.nextLine()
 
     val endereco = "https://www.cheapshark.com/api/1.0/games?id=$busca"
@@ -24,17 +24,40 @@ fun main() {
         .send(request, BodyHandlers.ofString())
 
     val json = response.body()
-    println(json)
 
     val gson = Gson()
-    try {
+
+    var meuJogo: Jogo? = null
+
+//runCatching substitui o try catch
+    val resultado = runCatching {
         val meuInfoJogo = gson.fromJson(json, InfoJogo::class.java)
 
-        val meuJogo = Jogo(meuInfoJogo.info.title, meuInfoJogo.info.thumb)
+        meuJogo = Jogo(meuInfoJogo.info.title, meuInfoJogo.info.thumb)
 
-        println(meuJogo)
-    }catch (e: Exception){
-        println("Erro, digite um código de jogo válido.")
+    }
 
+    resultado.onFailure {
+        println("Jogo inexistente, digite um código de jogo válido.")
+    }
+
+    resultado.onSuccess {
+        println("Deseja inserir uma descrição personalizada? S/N")
+        val opcao = leitura.nextLine()
+
+        if (opcao.equals("s", true)){
+            println("Insira a descrição personalizada: ")
+            val descricaoPersonalizada = leitura.nextLine()
+            meuJogo?.descricao = descricaoPersonalizada
+            println(meuJogo)
+        }else {
+            println("Ok! A descrição do jogo será igual ao título.")
+            meuJogo?.descricao = meuJogo.titulo
+            println(meuJogo)
+        }
+
+        resultado.onSuccess {
+            println("Busca finalizada com sucesso!")
+        }
     }
 }
