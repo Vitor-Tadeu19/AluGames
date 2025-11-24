@@ -6,12 +6,19 @@ import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse
 import java.net.http.HttpResponse.BodyHandlers
+import java.util.Scanner
 
 
 fun main() {
+    val leitura = Scanner(System.`in`)
+    println("Digite  um código de jogo para buscar: ")
+    val busca = leitura.nextLine()
+
+    val endereco = "https://www.cheapshark.com/api/1.0/games?id=$busca"
+
     val client: HttpClient = HttpClient.newHttpClient()
     val request = HttpRequest.newBuilder()
-        .uri(URI.create("https://www.cheapshark.com/api/1.0/games?id=146"))
+        .uri(URI.create(endereco))
         .build()
     val response: HttpResponse<String> = client
         .send(request, BodyHandlers.ofString())
@@ -20,9 +27,14 @@ fun main() {
     println(json)
 
     val gson = Gson()
-    val meuInfoJogo = gson.fromJson(json, InfoJogo::class.java)
+    try {
+        val meuInfoJogo = gson.fromJson(json, InfoJogo::class.java)
 
-    val meuJogo = Jogo(meuInfoJogo.info.title, meuInfoJogo.info.thumb)
+        val meuJogo = Jogo(meuInfoJogo.info.title, meuInfoJogo.info.thumb)
 
-    println(meuJogo)
+        println(meuJogo)
+    }catch (e: Exception){
+        println("Erro, digite um código de jogo válido")
+
+    }
 }
