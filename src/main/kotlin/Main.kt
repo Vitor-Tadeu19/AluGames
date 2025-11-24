@@ -34,7 +34,7 @@ fun main() {
 
         println(meuJogo)
     }catch (e: Exception){
-        println("Erro, digite um código de jogo válido")
+        println("Erro, digite um código de jogo válido.")
 
     }
 }
